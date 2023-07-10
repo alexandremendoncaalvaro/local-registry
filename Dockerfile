@@ -1,3 +1,11 @@
-# syntax=docker/dockerfile:1
-FROM alpine:3.16
-RUN apk add curl
+FROM node:14
+
+WORKDIR /usr/src/app
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 8080
+
+CMD [ "node", "server.js" ]
