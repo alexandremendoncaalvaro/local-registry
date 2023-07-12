@@ -46,32 +46,6 @@ E para instalar o Git:
 ```bash
 sudo apt-get install git
 ```
-
-### Instale o Portainer CE
-Portainer é uma interface de usuário baseada na web para gerenciamento de containers Docker. Para instalá-lo no Raspberry Pi, execute os seguintes comandos:
-```bash
-docker volume create portainer_data
-docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
-```
-
-### Instale o Watchtower
-Watchtower é uma aplicação que monitorará suas imagens do Docker em busca de atualizações. Quando uma atualização para uma imagem é detectada, o Watchtower atualizará automaticamente o container. Para instalá-lo, execute o seguinte comando:
-```bash
-docker run -d --name=watchtower -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower
-```
-
-### Configure a Stack no Portainer
-Para rodar sua aplicação no Raspberry, configure uma Stack no Portainer para apontar pra imagem no seu Container Registry. Aqui está como seria uma definição de stack, adaptado para o cenário de exemplo deste documento:
-```yml
-version: '3'
-services:
-  test-server:
-    image: localhost:5000/test-server
-    ports:
-      - "8080:8080"
-```
-O Watchtower irá conferir por atualizações no Registry e atualizar automaticamente os containers do Raspberry Pi.
-
 ## Redirecionamento NAT
 ### NAT (Network Address Translation)
 Este é um processo pelo qual os endereços IP são mapeados de um grupo para outro, geralmente com o objetivo de fornecer conectividade à Internet para vários hosts em uma rede local (LAN) por meio de um único endereço IP público. O NAT permite que um único dispositivo, como um roteador, atue como um agente entre a Internet (ou "rede pública") e uma rede local (ou "rede privada"). Isso significa que apenas um endereço IP único é necessário para representar um grupo inteiro de computadores para a Internet.
@@ -83,19 +57,6 @@ Considerando que o Registry esteja na porta 5000, execute o comando a seguir no 
 ```powershell
 $portaRegistry = 5000
 $ipWindows = "0.0.0.0"
-$ipWsl = (wsl hostname -I).Trim()
-netsh interface portproxy add v4tov4 listenaddress=$ipWindows listenport=$portaRegistry connectport=$portaRegistry connectaddress=$ipWsl
-```
-Se você usar 0.0.0.0 como o endereço local, isso significa que o serviço será acessível em todas as interfaces de rede e em todos os endereços IP do seu computador. Isso pode ser mais conveniente se você quiser que o serviço seja acessível em qualquer rede à qual seu computador esteja conectado (por exemplo, se você estiver alternando entre várias redes Wi-Fi), ou se o seu endereço IP estiver mudando.
-
-No entanto, também pode ser menos seguro, pois significa que qualquer pessoa que possa se conectar à sua máquina em qualquer rede à qual você esteja conectado poderá acessar o serviço. Portanto, se você decidir usar 0.0.0.0, deve garantir que o serviço esteja devidamente protegido, por exemplo, com autenticação e criptografia.
-
-Se você usar o endereço IP da máquina como o endereço local no comando netsh, isso significa que o serviço só será acessível se as pessoas se conectarem a esse endereço IP específico. Em outras palavras, eles precisam estar na mesma rede que você e precisam saber o endereço IP do seu computador.
-
-Se preferir direcionar **APENAS** o IP da rede conectada no momento, use o seguinte comando, ao invés do anterior:
-```powershell
-$portaRegistry = 5000
-$ipWindows = (Get-NetIPConfiguration | Where-Object {$_.IPv4DefaultGateway -ne $null -and $_.NetAdapter.Status -ne "Disconnected"}).IPv4Address.IPAddress
 $ipWsl = (wsl hostname -I).Trim()
 netsh interface portproxy add v4tov4 listenaddress=$ipWindows listenport=$portaRegistry connectport=$portaRegistry connectaddress=$ipWsl
 ```
@@ -111,6 +72,48 @@ netsh interface portproxy delete v4tov4 listenport=5000 listenaddress=0.0.0.0 pr
 ```
 > Supondo que queira remover o que fizemos para o Registry a partir do 0.0.0.0
 
+## Instale o Portainer CE no Raspberry Pi
+Portainer é uma interface de usuário baseada na web para gerenciamento de containers Docker. Para instalá-lo no Raspberry Pi, execute os seguintes comandos:
+```bash
+docker volume create portainer_data
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+```
+Abra o Portainer no navegador do PC conectado a mesma rede utilizando o endereço IP do Raspberry Pi que irá receber a configuração e a porta 9443.  
+Por exemplo: **https://192.168.0.42:9443**  
+
+> Importante acessar com **https**
+
+A primeira vez vai pedir pra criar usuário e senha. Sim, tem que ter 12 caracteres pelo menos! 😤  
+
+Após logar você precisa conectar ao ambiente local (Clique em Get Started):
+![portainer get started](https://2914113074-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FiZWHJxqQsgWYd9sI88sO%2Fuploads%2Fsig45vFliINvOKGKVStk%2F2.15-install-server-setup-wizard.png?alt=media&token=cd21d9e8-0632-40db-af9a-581365f98209)
+
+Agora você pode selecionar o ambiente criado (local) e ter acesso ao Dashboard e recursos.  
+
+### Instalação do Watchtower no Raspberry Pi
+Watchtower é uma aplicação que monitorará suas imagens do Docker em busca de atualizações. Quando uma atualização para uma imagem é detectada, o Watchtower atualizará automaticamente o container. 
+
+Para instalá-lo, vamos incluí-lo em uma Stack do Portainer. Veja o item a seguir.
+
+### Configure a Stack no Portainer no Raspberry Pi
+Para rodar sua aplicação no Raspberry, configure uma Stack no Portainer para apontar pra imagem no seu Container Registry.  
+
+Supondo que o seu PC com Windows esteja com o IP **192.168.0.100**  
+Aqui está como seria uma definição de stack, adaptado para o cenário de exemplo deste documento:  
+```yml
+version: '3'
+services:
+  test-server:
+    image: 192.168.0.100:5000/test-server
+    ports:
+      - "8080:8080"
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
+```
+O Watchtower irá conferir por atualizações no Registry e atualizar automaticamente os containers do Raspberry Pi.
 
 # Imagens Multiplataforma
 Para gerar imagens a partir do seu WSL que funcionem no Raspberry Pi é necessário configurar o BuildX.  
