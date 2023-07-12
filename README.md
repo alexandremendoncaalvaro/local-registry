@@ -36,9 +36,41 @@ docker-compose -f ./registry/local-registry.yml up -d
 Se tudo correr como esperado, acesse o Registry no navegador pelo endereço http://localhost:8090
 
 ## Configurar Raspberry Pi
-### Pré-Requisitos Raspiberry Pi
+### Pré-Requisitos Raspberry Pi
 ![Raspberry Pi OS](https://img.shields.io/badge/-Raspberry_Pi_OS-C51A4A?style=for-the-badge&logo=Raspberry-Pi) ![Docker](https://flat.badgen.net/badge/icon/docker?icon=docker&label) ![Git](https://flat.badgen.net/badge/icon/git?icon=git&label)  
+Para instalar o Docker no Raspberry Pi, você pode usar o seguinte comando:
+```bash
+curl -sSL https://get.docker.com | sh
+```
+E para instalar o Git:
+```bash
+sudo apt-get install git
+```
 
+### Instale o Portainer CE
+Portainer é uma interface de usuário baseada na web para gerenciamento de containers Docker. Para instalá-lo no Raspberry Pi, execute os seguintes comandos:
+```bash
+docker volume create portainer_data
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+```
+
+### Instale o Watchtower
+Watchtower é uma aplicação que monitorará suas imagens do Docker em busca de atualizações. Quando uma atualização para uma imagem é detectada, o Watchtower atualizará automaticamente o container. Para instalá-lo, execute o seguinte comando:
+```bash
+docker run -d --name=watchtower -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower
+```
+
+### Configure a Stack no Portainer
+Para rodar sua aplicação no Raspberry, configure uma Stack no Portainer para apontar pra imagem no seu Container Registry. Aqui está como seria uma definição de stack, adaptado para o cenário de exemplo deste documento:
+```yml
+version: '3'
+services:
+  test-server:
+    image: localhost:5000/test-server
+    ports:
+      - "8080:8080"
+```
+O Watchtower irá conferir por atualizações no Registry e atualizar automaticamente os containers do Raspberry Pi.
 
 ## Redirecionamento NAT
 ### NAT (Network Address Translation)
@@ -125,9 +157,17 @@ Se tudo correr como esperado, acesse o Registry no navegador pelo endereço http
 
 Por favor, note que esste é apenas um exemplo e para as suas aplicações você precisará substituir **test-server:latest** pelo nome e tag que você deseja usar para a sua imagem Docker, e . pelo caminho para o diretório que contém o seu Dockerfile.
 
-# Por último, mas não menos importante
-Certifique-se de que o seu Dockerfile e o seu código são compatíveis com todas as plataformas para as quais você está compilando. Algumas imagens do Docker e alguns códigos podem não funcionar em todas as plataformas. Em particular, se você estiver compilando para a plataforma ARM (Raspberry Pi), deverá garantir que todas as imagens do Docker que você está usando têm variantes ARM e que o seu código é compatível com ARM.
-
 # Referências
 https://github.com/Joxit/docker-registry-ui/tree/main/examples/ui-as-standalone
 https://docs.docker.com/build/building/multi-platform/
+
+# Por último, mas não menos importante
+Certifique-se de que o seu Dockerfile e o seu código são compatíveis com todas as plataformas para as quais você está compilando. Algumas imagens do Docker e alguns códigos podem não funcionar em todas as plataformas. Em particular, se você estiver compilando para a plataforma ARM (Raspberry Pi), deverá garantir que todas as imagens do Docker que você está usando têm variantes ARM e que o seu código é compatível com ARM.
+
+Caso você encontre problemas durante a instalação e configuração, aqui estão algumas dicas gerais para a solução de problemas:
+
+- Verifique se todos os pré-requisitos estão instalados corretamente.
+- Assegure-se de que você tem as permissões adequadas para executar todos os comandos.
+- Caso esteja recebendo erros durante a compilação, verifique se o seu Dockerfile está escrito corretamente.
+- Para problemas de rede, assegure-se de que todas as portas necessárias estão abertas e corretamente configuradas.
+- Para problemas mais específicos, por favor consulte as documentações apropriadas ou busque por soluções online.
