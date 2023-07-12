@@ -1,6 +1,12 @@
 # Container Registry Local
 Este repositório contém um exemplo de como configurar um Container Registry com interface gráfica em um PC local e como atualizar automaticamente containers em dispositivos rodando na mesma rede.  
 
+# Arquitetura
+Esta é a arquitetura que montei pro meu cenário e que usarei de base para as explicações, sinta-se a vontade para testar da forma que preferir.  
+Por exemplo, caso use um PC no lugar no Raspberry.  
+
+![arquitetura](readme/arquitetura.drawio.svg)
+
 ## O que é Container Registry?
 Um Container Registry é basicamente um local de armazenamento e distribuição para imagens de container. Se você está familiarizado com o conceito de controle de versão de código, como o GitHub, pode pensar em um Container Registry como um "GitHub para imagens de containers".
 
@@ -13,12 +19,6 @@ Um Container Registry é onde essas imagens de container são armazenadas. Ele p
 Um exemplo de Container Registry é o Docker Hub, mas existem muitos outros, incluindo o Google Container Registry e o Amazon Elastic Container Registry.
 
 Este repositório permite que você configure o seu próprio Container Registry, rodando em sua máquina local, e fornecendo as imagens como base para containers em outros dispositivos na sua rede.
-
-# Arquitetura
-Esta é a arquitetura que montei pro meu cenário e que usarei de base para as explicações, sinta-se a vontade para testar da forma que preferir.  
-Por exemplo, caso use um PC no lugar no Raspberry.  
-
-![arquitetura](readme/arquitetura.drawio.svg)
 
 # Instalação
 ## Configurar Container Registry
