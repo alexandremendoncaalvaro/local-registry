@@ -33,6 +33,7 @@ Execute este comando a partir da pasta do repositório (local-registry):
 ```bash
 docker-compose -f ./registry/local-registry.yml up -d
 ```
+> 
 Se tudo correr como esperado, acesse o Registry no navegador pelo endereço http://localhost:8090
 
 ## Configurar Raspberry Pi
@@ -57,7 +58,7 @@ Considerando que o Registry esteja na porta 5000, execute o comando a seguir no 
 ```powershell
 $portaRegistry = 5000
 $ipWindows = "0.0.0.0"
-$ipWsl = (wsl hostname -I).Trim()
+$ipWsl = $ipWsl = ((wsl hostname -I).Trim() -split ' ')[0]
 netsh interface portproxy add v4tov4 listenaddress=$ipWindows listenport=$portaRegistry connectport=$portaRegistry connectaddress=$ipWsl
 ```
 
@@ -154,7 +155,7 @@ Agora que você configurou o seu builder para suportar múltiplas plataformas, p
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t localhost:5000/test-server:latest --push .
 ```
-Este comando diz ao Docker para compilar a imagem Docker no diretório atual (.) para três plataformas (linux/amd64, linux/arm64, linux/arm/v7), marcar a imagem resultante como **test-server:latest**, e depois enviar (push) a imagem para o Container Registry (localhost:5000).
+Este comando diz ao Docker para compilar a imagem Docker no diretório atual (.) para três plataformas (linux/amd64, linux/arm64, linux/arm/v7), marcar a imagem resultante como **test-server:latest**, e depois enviar (push) a imagem para o Container Registry que está na mesma máquina, e por isso é localhost (192.168.0.100:5000).
 
 Se tudo correr como esperado, acesse o Registry no navegador pelo endereço http://localhost:8090 e verifique se a imagem aparece na lista.
 
