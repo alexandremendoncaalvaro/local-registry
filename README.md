@@ -155,7 +155,9 @@ Este comando diz ao Docker para compilar a imagem Docker no diretório atual (.)
 
 Se tudo correr como esperado, acesse o Registry no navegador pelo endereço http://localhost:8090 e verifique se a imagem aparece na lista.
 
-Por favor, note que esste é apenas um exemplo e para as suas aplicações você precisará substituir **test-server:latest** pelo nome e tag que você deseja usar para a sua imagem Docker, e . pelo caminho para o diretório que contém o seu Dockerfile.
+Cada vez que você quiser aplicar as modificações feitas no seu projeto aos Raspberry Pi e outros dispositivos vinculados, basta executar o comando de build (com --push) novamente. Com isso a imagem será atualizada no Container Registry e o Watchtower nos dispositivos irá conferir e encontar a atualização, e com isso atualizar o container do projeto! ***"Mas não é magia... é tecnologia!"*** rsrsrsrs
+
+Por favor, note que este é apenas um exemplo e para as suas aplicações você precisará substituir **test-server:latest** pelo nome e tag que você deseja usar para a sua imagem Docker, e . pelo caminho para o diretório que contém o seu Dockerfile.
 
 # Referências
 https://github.com/Joxit/docker-registry-ui/tree/main/examples/ui-as-standalone
