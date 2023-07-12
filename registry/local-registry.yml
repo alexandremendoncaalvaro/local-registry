@@ -7,6 +7,7 @@ services:
     volumes:
       - ./registry-data:/var/lib/registry
       - ./config.yml:/etc/docker/registry/config.yml
+    restart: unless-stopped
 
   ui:
     image: joxit/docker-registry-ui:latest
@@ -16,5 +17,6 @@ services:
       - REGISTRY_TITLE=Container Registry Local
       - REGISTRY_URL=http://localhost:5000
       - SINGLE_REGISTRY=true
+    restart: unless-stopped
     depends_on:
       - registry
