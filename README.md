@@ -34,7 +34,7 @@ git clone https://github.com/alexandremendoncaalvaro/local-registry.git && cd lo
 Execute este comando a partir da pasta do repositório (local-registry):  
 ![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
 ```bash
-docker-compose -f ./registry/local-registry.yml up -d
+docker compose -f ./registry/local-registry.yml up -d
 ```
 > 
 Se tudo correr como esperado, acesse o Registry no navegador pelo endereço http://localhost:8090
@@ -203,3 +203,63 @@ Caso você encontre problemas durante a instalação e configuração, aqui est�
 - Caso esteja recebendo erros durante a compilação, verifique se o seu Dockerfile está escrito corretamente.
 - Para problemas de rede, assegure-se de que todas as portas necessárias estão abertas e corretamente configuradas.
 - Para problemas mais específicos, por favor consulte as documentações apropriadas ou busque por soluções online.
+
+# Extras
+## Instalar Docker no WSL2
+
+### Configurando o WSL
+
+O primeiro passo é verificar se o seu sistema operacional Windows 10/ 11 é compatível com a versão 2 do WSL (WSL 2). Para fazer isso, abra o PowerShell como administrador e execute o seguinte comando:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-PowerShell-0078D6)
+```bash
+wsl --set-default-version 2
+```
+Se você recebeu uma mensagem informando que a atualização para a WSL 2 requer uma atualização do kernel, você precisará instalar a atualização do kernel do sistema operacional Linux do WSL 2. Siga as instruções fornecidas pela Microsoft para instalar a atualização do kernel.
+
+Depois que o WSL 2 estiver configurado, você pode instalar uma distribuição Linux a partir da Microsoft Store. Por exemplo, você pode instalar o Ubuntu.
+
+### Instalando o Docker Engine
+
+Depois que a distribuição Linux estiver instalada, abra o terminal Linux e execute os seguintes comandos para instalar o Docker Engine. No caso do Ubuntu, os comandos seriam:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt-get install docker-ce
+sudo service docker start
+```
+
+Para verificar se o Docker foi instalado corretamente, execute:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+sudo docker run hello-world
+```
+Este comando deve retornar uma mensagem indicando que o serviço docker está funcionando.
+
+Nota: Como padrão, o comando Docker requer privilégios de superusuário. Se você quiser evitar a digitação de sudo sempre que executar o comando docker, adicione seu usuário ao grupo docker:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+sudo usermod -aG docker ${USER}
+```
+
+Depois disso, você precisará fazer logout e login novamente para que essa mudança tenha efeito.
+
+Depois de configurar o WSL e instalar o Docker Engine, você poderá executar comandos Docker diretamente do terminal WSL. Lembre-se de que os contêineres Docker que você executa precisarão ser baseados em imagens Linux, já que você está executando o Docker em um ambiente Linux.
+
+Para uma experiência mais automatizada no WSL, você pode adicionar o comando de inicialização do Docker ao arquivo .bashrc ou .zshrc (dependendo do shell que você está usando). Isso iniciará o Docker toda vez que você abrir uma nova janela de terminal.
+
+Para fazer isso, abra o arquivo .bashrc ou .zshrc com um editor de texto de sua escolha (por exemplo, nano ou vim):  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+sudo nano ~/.bashrc
+```
+
+Adicione a seguinte linha ao final do arquivo:
+```bash
+sudo service docker start
+```
+
+Agora, sempre que você abrir um novo terminal, o Docker será iniciado automaticamente.
