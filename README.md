@@ -159,9 +159,10 @@ Se você precisar instalá-lo, pode seguir as instruções na [página oficial d
 O Docker Buildx usa o conceito de "builders" para definir diferentes ambientes de compilação. Você precisará criar um novo builder que é capaz de compilar imagens multiplataforma:  
 ![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
 ```bash
-docker buildx create --use --name mybuilder
+docker buildx create --use --name mybuilder --driver-opt network=host
 ```
 Este comando cria um novo builder chamado "mybuilder" e configura o Docker para usá-lo para futuros comandos docker buildx.
+> A opção **--driver-opt network=host** habilita para que o push possa ser feito para localhost
 
 ### Adicione a plataforma ARM ao seu builder:
 Para compilar imagens que são compatíveis com Raspberry Pi (que usa a arquitetura ARM), você precisará adicionar essa plataforma ao seu builder:  
