@@ -50,7 +50,7 @@ O Docker Buildx é uma extensão do Docker que usa o novo BuildKit do Docker par
 O Docker Buildx precisa do Docker BuildKit para funcionar. Você pode habilitar o BuildKit adicionando a seguinte linha ao arquivo de configuração do Docker:
 ```json
 {
-    "features": { "buildkit": true }
+    "features": { "buildkit": true },
 }
 ```
 > Geralmente localizado em **~/.docker/daemon.json** ou em **/etc/docker/daemon.json** se o docker for instalado direto no WSL e nas configurações "Docker Engine" se usar o Docker Desktop pelo Windows  
@@ -137,6 +137,22 @@ Portainer é uma interface de usuário baseada na web para gerenciamento de cont
 docker volume create portainer_data
 docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
 ```
+
+### Configure o acesso do Docker ao Registry
+O Docker do Raspberry Pi precisa ser configurado para aceitar acesso ao nosso Registry.  
+Abra o arquivo daemon.json:  
+![](https://img.shields.io/badge/-Raspberry_Pi-C51A4A?logo=Raspberry-Pi&logoColor=white) ![](https://img.shields.io/badge/Terminal-Bash-C51A4A)
+```bash
+sudo nano /etc/docker/daemon.json
+```
+e insira a configuração com o endereço IP do PC:  
+```json
+{
+  "insecure-registries" : ["192.168.0.100:5000"]
+}
+
+```
+
 ### No Navegador de internet do PC
 ![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Browser-0078D6)  
 Abra o Portainer no navegador utilizando o endereço IP do Raspberry Pi que irá receber a configuração e a porta 9443.  
