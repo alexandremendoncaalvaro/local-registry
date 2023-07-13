@@ -39,6 +39,61 @@ docker-compose -f ./registry/local-registry.yml up -d
 > 
 Se tudo correr como esperado, acesse o Registry no navegador pelo endereço http://localhost:8090
 
+# Imagens Multiplataforma
+O seu PC funciona com uma arquitetura x86 ou x64, enquanto o Raspberry Pi funciona com uma arquitetura ArmV7. 
+Para gerar as imagens a partir do WSL no seu PC que funcionem para a arquitetura do Raspberry Pi é necessário configurar o BuildX.  
+
+## Configurar BuildX:
+O Docker Buildx é uma extensão do Docker que usa o novo BuildKit do Docker para melhorar a experiência de construção de imagens Docker. Ele permite que você crie imagens Docker que são compatíveis com várias plataformas diferentes, como Linux, Windows, ARM, etc.  
+
+### Verifique se o Docker está configurado para usar o BuildKit:
+O Docker Buildx precisa do Docker BuildKit para funcionar. Você pode habilitar o BuildKit adicionando a seguinte linha ao arquivo de configuração do Docker:
+```json
+{
+    "features": { "buildkit": true }
+}
+```
+> Geralmente localizado em **~/.docker/daemon.json** ou em **/etc/docker/daemon.json** se o docker for instalado direto no WSL e nas configurações "Docker Engine" se usar o Docker Desktop pelo Windows  
+
+Em seguida, reinicie o Docker.
+
+### Instale o Docker Buildx:
+O Docker Buildx é incluído como uma extensão experimental no Docker 19.03 e versões posteriores. Se o Docker estiver habilitado para funcionalidades experimentais, você já terá o Buildx. Caso contrário, você precisará instalá-lo. Você pode verificar se já tem o Buildx rodando:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+docker buildx version
+```
+Se você precisar instalá-lo, pode seguir as instruções na [página oficial do Docker Buildx](https://github.com/docker/buildx#installing).
+
+### Crie um novo builder:
+O Docker Buildx usa o conceito de "builders" para definir diferentes ambientes de compilação. Você precisará criar um novo builder que é capaz de compilar imagens multiplataforma:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+docker buildx create --use --name mybuilder --driver-opt network=host
+```
+Este comando cria um novo builder chamado "mybuilder" e configura o Docker para usá-lo para futuros comandos docker buildx.
+> A opção **--driver-opt network=host** habilita para que o push possa ser feito para localhost
+
+### Adicione a plataforma ARM ao seu builder:
+Para compilar imagens que são compatíveis com Raspberry Pi (que usa a arquitetura ARM), você precisará adicionar essa plataforma ao seu builder:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+docker buildx inspect mybuilder --bootstrap
+```
+Isto inicializará o builder e imprimirá as plataformas suportadas. Se você não vê linux/arm/v7 e linux/arm64 na lista, precisará adicionar suporte a essas plataformas.
+
+###  Compile a sua imagem Docker:
+Agora que você configurou o seu builder para suportar múltiplas plataformas, pode usá-lo para compilar a sua imagem Docker. Aqui está um exemplo de como fazer isso. A partir da pasta deste repositório no WSL, execute o seguinte comando:  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
+```bash
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t localhost:5000/test-server:latest --push .
+```
+Este comando diz ao Docker para compilar a imagem Docker no diretório atual (.) para três plataformas (linux/amd64, linux/arm64, linux/arm/v7), marcar a imagem resultante como **test-server:latest**, e depois enviar (push) a imagem para o Container Registry que está na mesma máquina, e por isso é localhost (192.168.0.100:5000).
+
+Se tudo correr como esperado, acesse o Registry no navegador  
+![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Browser-0078D6)  
+pelo endereço: http://localhost:8090  
+e verifique se a imagem aparece na lista.
 
 ## Redirecionamento NAT
 ### NAT (Network Address Translation)
@@ -129,62 +184,7 @@ services:
 ```
 O Watchtower (no Raspberry Pi) irá conferir por atualizações no Registry (no seu PC) e atualizar automaticamente os containers do Raspberry Pi.
 
-# Imagens Multiplataforma
-O seu PC funciona com uma arquitetura x86 ou x64, enquanto o Raspberry Pi funciona com uma arquitetura ArmV7. 
-Para gerar as imagens a partir do WSL no seu PC que funcionem para a arquitetura do Raspberry Pi é necessário configurar o BuildX.  
-
-## Configurar BuildX:
-O Docker Buildx é uma extensão do Docker que usa o novo BuildKit do Docker para melhorar a experiência de construção de imagens Docker. Ele permite que você crie imagens Docker que são compatíveis com várias plataformas diferentes, como Linux, Windows, ARM, etc.  
-
-### Verifique se o Docker está configurado para usar o BuildKit:
-O Docker Buildx precisa do Docker BuildKit para funcionar. Você pode habilitar o BuildKit adicionando a seguinte linha ao arquivo de configuração do Docker:
-```json
-{
-    "features": { "buildkit": true }
-}
-```
-> Geralmente localizado em **~/.docker/daemon.json** ou em **/etc/docker/daemon.json** se o docker for instalado direto no WSL e nas configurações "Docker Engine" se usar o Docker Desktop pelo Windows  
-
-Em seguida, reinicie o Docker.
-
-### Instale o Docker Buildx:
-O Docker Buildx é incluído como uma extensão experimental no Docker 19.03 e versões posteriores. Se o Docker estiver habilitado para funcionalidades experimentais, você já terá o Buildx. Caso contrário, você precisará instalá-lo. Você pode verificar se já tem o Buildx rodando:  
-![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
-```bash
-docker buildx version
-```
-Se você precisar instalá-lo, pode seguir as instruções na [página oficial do Docker Buildx](https://github.com/docker/buildx#installing).
-
-### Crie um novo builder:
-O Docker Buildx usa o conceito de "builders" para definir diferentes ambientes de compilação. Você precisará criar um novo builder que é capaz de compilar imagens multiplataforma:  
-![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
-```bash
-docker buildx create --use --name mybuilder --driver-opt network=host
-```
-Este comando cria um novo builder chamado "mybuilder" e configura o Docker para usá-lo para futuros comandos docker buildx.
-> A opção **--driver-opt network=host** habilita para que o push possa ser feito para localhost
-
-### Adicione a plataforma ARM ao seu builder:
-Para compilar imagens que são compatíveis com Raspberry Pi (que usa a arquitetura ARM), você precisará adicionar essa plataforma ao seu builder:  
-![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
-```bash
-docker buildx inspect mybuilder --bootstrap
-```
-Isto inicializará o builder e imprimirá as plataformas suportadas. Se você não vê linux/arm/v7 e linux/arm64 na lista, precisará adicionar suporte a essas plataformas.
-
-###  Compile a sua imagem Docker:
-Agora que você configurou o seu builder para suportar múltiplas plataformas, pode usá-lo para compilar a sua imagem Docker. Aqui está um exemplo de como fazer isso. A partir da pasta deste repositório no WSL, execute o seguinte comando:  
-![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
-```bash
-docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t localhost:5000/test-server:latest --push .
-```
-Este comando diz ao Docker para compilar a imagem Docker no diretório atual (.) para três plataformas (linux/amd64, linux/arm64, linux/arm/v7), marcar a imagem resultante como **test-server:latest**, e depois enviar (push) a imagem para o Container Registry que está na mesma máquina, e por isso é localhost (192.168.0.100:5000).
-
-Se tudo correr como esperado, acesse o Registry no navegador  
-![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Browser-0078D6)  
-pelo endereço: http://localhost:8090  
-e verifique se a imagem aparece na lista.
-
+# Finalizando
 Agora, cada vez que você quiser aplicar as modificações feitas no seu projeto aos Raspberry Pi e outros dispositivos vinculados, basta executar o comando de build (com --push) novamente. Com isso a imagem será atualizada no Container Registry e o Watchtower nos dispositivos irá conferir e encontar a atualização, e com isso atualizar o container do projeto! ***"Mas não é magia... é tecnologia!"*** rsrsrsrs
 
 Por favor, note que este é apenas um exemplo e para as suas aplicações você precisará acessar a pasta do seu projeto e substituir **test-server:latest** pelo nome e tag que você deseja usar para a sua imagem Docker, e . pelo caminho para o diretório que contém o seu Dockerfile.
