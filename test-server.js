@@ -15,8 +15,9 @@ const server = http.createServer((req, res) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #f0f0f0;
+          background-color: #007BFF;
           font-family: Arial, sans-serif;
+          color: #FFFFFF;
         }
         h1 {
           font-size: 2.5em;
