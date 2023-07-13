@@ -143,7 +143,7 @@ O Docker Buildx precisa do Docker BuildKit para funcionar. Você pode habilitar 
     "features": { "buildkit": true }
 }
 ```
-> Geralmente localizado em **~/.docker/daemon.json** se o docker for instalado direto no WSL e nas configurações "Docker Engine" se usar o Docker Desktop pelo Windows  
+> Geralmente localizado em **~/.docker/daemon.json** ou em **/etc/docker/daemon.json** se o docker for instalado direto no WSL e nas configurações "Docker Engine" se usar o Docker Desktop pelo Windows  
 
 Em seguida, reinicie o Docker.
 
