@@ -142,7 +142,7 @@ docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /va
 Abra o Portainer no navegador utilizando o endereço IP do Raspberry Pi que irá receber a configuração e a porta 9443.  
 Por exemplo: **https://192.168.0.42:9443**  
 
-> Importante acessar com **https** e se aparecer um aviso, aceitar continuar.
+> Importante acessar com **https** e se aparecer o aviso "Sua conexão não é privada" clique em avançado e "Continue até localhost (não seguro)".
 
 A primeira vez vai pedir pra criar usuário e senha (Sim, tem que ter 12 caracteres pelo menos! 😤)  
 
