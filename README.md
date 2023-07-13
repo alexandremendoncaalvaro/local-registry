@@ -145,6 +145,7 @@ Abra o arquivo daemon.json:
 ```bash
 sudo nano /etc/docker/daemon.json
 ```
+> se não existir ele será criado automaticamente pelo nano
 e insira a configuração com o endereço IP do PC:  
 ```json
 {
