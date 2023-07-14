@@ -8,4 +8,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD [ "node", "test-server.js" ]
+CMD [ "node", "raspberry-app.js" ]

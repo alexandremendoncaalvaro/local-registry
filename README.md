@@ -86,9 +86,9 @@ Isto inicializará o builder e imprimirá as plataformas suportadas. Se você n�
 Agora que você configurou o seu builder para suportar múltiplas plataformas, pode usá-lo para compilar a sua imagem Docker. Aqui está um exemplo de como fazer isso. A partir da pasta deste repositório no WSL, execute o seguinte comando:  
 ![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Terminal-Ubuntu_WSL2-E95420)
 ```bash
-docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t localhost:5000/test-server:latest --push .
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t localhost:5000/raspberry-app:latest --push .
 ```
-Este comando diz ao Docker para compilar a imagem Docker no diretório atual (.) para três plataformas (linux/amd64, linux/arm64, linux/arm/v7), marcar a imagem resultante como **test-server:latest**, e depois enviar (push) a imagem para o Container Registry que está na mesma máquina, e por isso é localhost (192.168.0.100:5000).
+Este comando diz ao Docker para compilar a imagem Docker no diretório atual (.) para três plataformas (linux/amd64, linux/arm64, linux/arm/v7), marcar a imagem resultante como **raspberry-app:latest**, e depois enviar (push) a imagem para o Container Registry que está na mesma máquina, e por isso é localhost (192.168.0.100:5000).
 
 Se tudo correr como esperado, acesse o Registry no navegador  
 ![](https://img.shields.io/badge/PC-0078D6?logo=windows&logoColor=white) ![](https://img.shields.io/badge/Browser-0078D6)  
@@ -187,8 +187,8 @@ Aqui está como seria uma definição de stack, adaptado para o cenário de exem
 ```yml
 version: '3'
 services:
-  test-server:
-    image: 192.168.0.100:5000/test-server
+  raspberry-app:
+    image: 192.168.0.100:5000/raspberry-app
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -204,7 +204,7 @@ O Watchtower (no Raspberry Pi) irá conferir por atualizações no Registry (no 
 # Finalizando
 Agora, cada vez que você quiser aplicar as modificações feitas no seu projeto aos Raspberry Pi e outros dispositivos vinculados, basta executar o comando de build (com --push) novamente. Com isso a imagem será atualizada no Container Registry e o Watchtower nos dispositivos irá conferir e encontar a atualização, e com isso atualizar o container do projeto! ***"Mas não é magia... é tecnologia!"*** rsrsrsrs
 
-Por favor, note que este é apenas um exemplo e para as suas aplicações você precisará acessar a pasta do seu projeto e substituir **test-server:latest** pelo nome e tag que você deseja usar para a sua imagem Docker, e . pelo caminho para o diretório que contém o seu Dockerfile.
+Por favor, note que este é apenas um exemplo e para as suas aplicações você precisará acessar a pasta do seu projeto e substituir **raspberry-app:latest** pelo nome e tag que você deseja usar para a sua imagem Docker, e . pelo caminho para o diretório que contém o seu Dockerfile.
 
 # Referências
 https://github.com/Joxit/docker-registry-ui/tree/main/examples/ui-as-standalone
